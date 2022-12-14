@@ -1,0 +1,169 @@
+1-SELECT student_name , student_id 
+  FROM student as s JOIN enrolled as e ON s.student_id=e.student_id JOIN semester_course as sem ON sem.course_code = e.course_code
+  WHERE sem.`year` = e.`year` and sem.quarter = en.quarter and  s.level = "SR" and sem.prof_id = 1
+  GROUP BY s.student_id;
+
+Result:
+
+	student_name	student_id	
+	Maria White	201
+	Charles Harris	202
+
+2-SELECT max(s.age) FROM student as s JOIN enrolled as e ON s.student_id=e.student_id JOIN semester_course as sem ON e.course_code=sem.course_code JOIN professor as p ON sem.prof_id=p.prof_id
+WHERE s.major='History' OR p.prof_name='Michael Miller';
+
+Result:
+	max(s.age)
+	22
+
+3-SELECT DISTINCT s.student_id , s.student_name , c.name 
+FROM student as s  LEFT JOIN enrolled as e ON s.student_id=e.student_id LEFT JOIN course as c ON e.course_code=c.course_code
+
+Result:
+	
+student_id	student_name		name	
+201		Maria White		Data Structures
+201		Maria White		Archaeology of the I
+201		Maria White		Aviation Accident In
+202		Charles Harris		Data Structures
+202		Charles Harris		Database Systems
+202		Charles Harris		Operating System Des
+202		Charles Harris		Air Quality Engineer
+203		Susan Martin		Database Systems
+203		Susan Martin		Operating System Des
+203		Susan Martin		Archaeology of the I
+204		Joseph Thompson		Data Structures
+204		Joseph Thompson		American Political P
+204		Joseph Thompson		Social Cognition
+205		Christopher Garcia	Operating System Des
+206		Angela Martinez		Data Structures
+207		Thomas Robinson		Database Systems
+207		Thomas Robinson		Introductory Latin
+208		Margaret Clark		Data Structures
+208		Margaret Clark		Operating System Des
+208		Margaret Clark		Archaeology of the I
+208		Margaret Clark		Aviation Accident In
+208		Margaret Clark		Air Quality Engineer
+209		Juan Rodriguez		Data Structures
+209		Juan Rodriguez		Archaeology of the I
+209		Juan Rodriguez		Aviation Accident In
+
+
+4-SELECT p.prof_name , p.prof_id from professor as p left join semester_course as sem on p.prof_id = sem.prof_id
+  GROUP by p.prof_id
+  HAVING COUNT(sem.course_code) < 5;
+
+Result:
+	prof_name		
+	James Smith	
+	Mary Johnson
+	John Williams
+	Patricia Jones
+	Robert Brown
+	Linda Davis
+
+
+5-SELECT s.student_name from student as s WHERE not EXISTS ((SELECT sem.course_code
+FROM semester_course as sem WHERE sem.prof_id = 2) except (SELECT e.course_code FROM enrolled as e
+WHERE s.student_id = e.student_id));
+
+Result:
+	student_name	
+	Joseph Thompson
+	Lisa Walker
+	Paul Hall
+
+6-SELECT c.name FROM  course as c WHERE c.course_code  NOT IN ((SELECT sem.course_code FROM semester_course sem)) 
+  UNION 
+  SELECT c1.name FROM course as  c1, semester_course as sem NATURAL JOIN professor as p,department as dep
+  WHERE   p.dept_id = dep.dept_id AND dep.dept_name = 'Computer Science' AND c1.course_code = Sem.course_code;
+
+Result:
+	name	
+	Patent Law
+	Urban Economics
+	Organic Chemistry
+	Data Structures
+	Operating System Des
+	Perception
+	Multivariate Analysi
+
+7-SELECT s.student_name from student as s WHERE s.student_name LIKE 'M%' AND s.age<20 
+UNION
+(SELECT p.prof_name from professor as p WHERE p.prof_name LIKE 'M%' AND p.prof_id IN (SELECT sem.prof_id from semester_course as sem GROUP By sem.prof_id HAVING count(*)>2) );
+
+Result:
+	Margaret Clark
+	Mark Young
+	Michael Miller
+
+8-SELECT p.prof_id , p.prof_name FROM  professor as p  NATURAL left join semester_course as sem
+WHERE p.dept_id in ('1','2','3','4')
+GROUP BY p.prof_id HAVING COUNT(*)<2;
+
+Result:
+	
+prof_id		prof_name	
+3		Mary Johnson
+5		Patricia Jones
+7		Robert Brown
+
+
+9-SELECT s.student_id , s.student_name, p.prof_id , p.prof_name
+  FROM (student s LEFT JOIN (enrolled e NATURAL JOIN semester_course sem) on s.student_id = e.student_id) LEFT JOIN professor p on sem.prof_id = p.prof_id 
+  UNION  
+  SELECT s.student_id , s.student_name, p.prof_id , p.prof_name
+  FROM (student s RIGHT JOIN (enrolled e NATURAL JOIN semester_course sem) on s.student_id = e.student_id) RIGHT JOIN professor p on sem.prof_id = p.prof_id;
+
+
+
+student_id	student_name		prof_id		prof_name	
+201		Maria White		6		Michael Miller
+201		Maria White		2		James Smith
+201		Maria White		1		Ivana Teach
+202		Charles Harris		1		Ivana Teach
+202		Charles Harris		6		Michael Miller
+203		Susan Martin		6		Michael Miller
+204		Joseph Thompson		1		Ivana Teach
+204		Joseph Thompson		2		James Smith
+205		Christopher Garcia	6		Michael Miller
+206		Angela Martinez		4		John Williams
+207		Thomas Robinson		6		Michael Miller
+207		Thomas Robinson		1		Ivana Teach
+208		Margaret Clark		2		James Smith
+208		Margaret Clark		5		Patricia Jones
+208		Margaret Clark		1		Ivana Teach
+209		Juan Rodriguez		6		Michael Miller
+209		Juan Rodriguez		1		Ivana Teach
+210		Dorthy Lewis		1		Ivana Teach
+210		Dorthy Lewis		6		Michael Miller
+211		Daniel Lee		1		Ivana Teach
+211		Daniel Lee		6		Michael Miller
+212		Lisa Walker		1		Ivana Teach
+212		Lisa Walker		6		Michael Miller
+212		Lisa Walker		2		James Smith
+213		Paul Hall		1		Ivana Teach
+
+
+10- SELECT p.prof_id, p.prof_name, c.course_code, c.name FROM professor as p
+JOIN semester_course as sem on p.prof_id = sem.prof_id
+JOIN enrolled as e on e.course_code = sem.course_code
+JOIN course as c on c.course_code = e.course_code
+HAVING count(e.course_code) >= 2;
+
+Result:
+	prof_id		prof_name	course_code	name
+	6		Michael Miller	CC10		Data Structures
+
+11- SELECT d.dept_name FROM department d JOIN professor p on d.dept_id=p.dept_id JOIN semester_course sem ON sem.prof_id=p.prof_id 
+HAVING COUNT(sem.course_code)<3;
+
+no Result
+
+*****Another Solution*******
+SELECT d.dept_name FROM department d JOIN professor p on d.dept_id=p.dept_id JOIN semester_course sem ON sem.prof_id=p.prof_id 
+HAVING COUNT(sem.course_code<3);
+
+Result:
+	dept_name
+	civil

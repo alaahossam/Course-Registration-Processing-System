@@ -23,55 +23,82 @@ Result:
 	
 student_id	student_name		name	
 201		Maria White		Data Structures
-201		Maria White		Archaeology of the I
-201		Maria White		Aviation Accident In
+201		Maria White		Archaeology of the Incas
+201		Maria White		Aviation Accident Investigation
 202		Charles Harris		Data Structures
 202		Charles Harris		Database Systems
-202		Charles Harris		Operating System Des
-202		Charles Harris		Air Quality Engineer
+202		Charles Harris		Operating System Design
+202		Charles Harris		Air Quality Engineering
 203		Susan Martin		Database Systems
-203		Susan Martin		Operating System Des
-203		Susan Martin		Archaeology of the I
+203		Susan Martin		Operating System Design
+203		Susan Martin		Archaeology of the Incas
 204		Joseph Thompson		Data Structures
-204		Joseph Thompson		American Political P
+204		Joseph Thompson		American Political Parties
 204		Joseph Thompson		Social Cognition
-205		Christopher Garcia	Operating System Des
+205		Christopher Garcia	Operating System Design
 206		Angela Martinez		Data Structures
 207		Thomas Robinson		Database Systems
 207		Thomas Robinson		Introductory Latin
 208		Margaret Clark		Data Structures
-208		Margaret Clark		Operating System Des
-208		Margaret Clark		Archaeology of the I
-208		Margaret Clark		Aviation Accident In
-208		Margaret Clark		Air Quality Engineer
+208		Margaret Clark		Operating System Design
+208		Margaret Clark		Archaeology of the Incas
+208		Margaret Clark		Aviation Accident Investigation
+208		Margaret Clark		Air Quality Engineering
 209		Juan Rodriguez		Data Structures
-209		Juan Rodriguez		Archaeology of the I
-209		Juan Rodriguez		Aviation Accident In
-
+209		Juan Rodriguez		Archaeology of the Incas
+209		Juan Rodriguez		Aviation Accident Investigation
+210		Dorthy Lewis		Data Structures
+210		Dorthy Lewis		Database Systems
+210		Dorthy Lewis		Aviation Accident Investigation
+210		Dorthy Lewis		Air Quality Engineering
+210		Dorthy Lewis		Introductory Latin
+211		Daniel Lee		Data Structures
+211		Daniel Lee		Archaeology of the Incas
+211		Daniel Lee		Air Quality Engineer
+211		Daniel Lee		Introductory Latin
+211		Daniel Lee		American Political Parties
+212		Lisa Walker		Data Structures
+212		Lisa Walker		Archaeology of the Incas
+212		Lisa Walker		American Political Parties
+212		Lisa Walker		Social Cognition
+213		Paul Hall		Data Structures
+213		Paul Hall		Operating System Design
+213		Paul Hall		Social Cognition
+214		Nancy Allen		Operating System Design
+214		Nancy Allen		Aviation Accident Investigation
+215		Mark Young		Data Structures
+215		Mark Young		Database Systems
+215		Mark Young		Operating System Design
+215		Mark Young		Aviation Accident Investigation
+215		Mark Young		Air Quality Engineering
+216		Luis Hernandez		Data Structures
+216		Luis Hernandez		Database Systems
+216		Luis Hernandez		Operating System Design
+216		Luis Hernandez		Air Quality Engineering
+217		Donald King		NULL
+218		George Wright		NULL
 
 4-SELECT p.prof_name , p.prof_id from professor as p left join semester_course as sem on p.prof_id = sem.prof_id
   GROUP by p.prof_id
   HAVING COUNT(sem.course_code) < 5;
 
 Result:
-	prof_name		
-	James Smith	
-	Mary Johnson
-	John Williams
-	Patricia Jones
-	Robert Brown
-	Linda Davis
+	prof_name	prof_id		
+	Mary Johnson	3
+	John Williams	4
+	Patricia Jones	5
+	Robert Brown	7
+	Linda Davis	8
 
-
-5-SELECT s.student_name from student as s WHERE not EXISTS ((SELECT sem.course_code
-FROM semester_course as sem WHERE sem.prof_id = 2) except (SELECT e.course_code FROM enrolled as e
-WHERE s.student_id = e.student_id));
+5-SELECT DISTINCT s.student_name FROM student AS s JOIN enrolled as e ON e.student_id=s.student_id 
+JOIN semester_course as sem  on e.course_code=sem.course_code and e.quarter=sem.quarter and e.year=sem.year
+JOIN professor as p on sem.prof_id=p.prof_id WHERE p.prof_id=2 
+GROUP BY s.student_name 
+HAVING COUNT(sem.course_code)=(SELECT COUNT(sem.course_code) FROM semester_course AS sem WHERE sem.prof_id=2);
 
 Result:
 	student_name	
-	Joseph Thompson
-	Lisa Walker
-	Paul Hall
+	**empty**
 
 6-SELECT c.name FROM  course as c WHERE c.course_code  NOT IN ((SELECT sem.course_code FROM semester_course sem)) 
   UNION 
@@ -84,9 +111,9 @@ Result:
 	Urban Economics
 	Organic Chemistry
 	Data Structures
-	Operating System Des
+	Operating System Design
 	Perception
-	Multivariate Analysi
+	Multivariate Analysis
 
 7-SELECT s.student_name from student as s WHERE s.student_name LIKE 'M%' AND s.age<20 
 UNION
@@ -143,7 +170,23 @@ student_id	student_name		prof_id		prof_name
 212		Lisa Walker		6		Michael Miller
 212		Lisa Walker		2		James Smith
 213		Paul Hall		1		Ivana Teach
-
+213		Paul Hall		6		Michael Miller	
+213		Paul Hall		2		James Smith	
+214		Nancy Allen		6		Michael Miller	
+214		Nancy Allen		1		Ivana Teach	
+215		Mark Young		4		John Williams	
+215		Mark Young		6		Michael Miller	
+215		Mark Young		1		Ivana Teach	
+216		Luis Hernandez		4		John Williams	
+216		Luis Hernandez		6		Michael Miller	
+216		Luis Hernandez		2		James Smith	
+216		Luis Hernandez		1		Ivana Teach	
+216		Luis Hernandez		5		Patricia Jones	
+217		Donald King		NULL		NULL	
+218		George Wright		NULL		NULL	
+NULL		NULL			3		Mary Johnson	
+NULL		NULL			7		Robert Brown	
+NULL		NULL			8		Linda Davis
 
 10- SELECT p.prof_id, p.prof_name, c.course_code, c.name FROM professor as p
 JOIN semester_course as sem on p.prof_id = sem.prof_id
@@ -155,15 +198,12 @@ Result:
 	prof_id		prof_name	course_code	name
 	6		Michael Miller	CC10		Data Structures
 
-11- SELECT d.dept_name FROM department d JOIN professor p on d.dept_id=p.dept_id JOIN semester_course sem ON sem.prof_id=p.prof_id 
-HAVING COUNT(sem.course_code)<3;
+11- SELECT d.dept_name FROM department d JOIN professor p on d.dept_id=p.dept_id JOIN semester_course sem ON sem.prof_id=p.prof_id GROUP BY d.dept_name
+HAVING COUNT(sem.prof_id)<3;
 
-no Result
-
-*****Another Solution*******
-SELECT d.dept_name FROM department d JOIN professor p on d.dept_id=p.dept_id JOIN semester_course sem ON sem.prof_id=p.prof_id 
-HAVING COUNT(sem.course_code<3);
 
 Result:
 	dept_name
-	civil
+	Arts
+	Electronics
+	Mechanics

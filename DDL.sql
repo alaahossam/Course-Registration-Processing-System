@@ -25,7 +25,7 @@ PRIMARY KEY (prof_id)
 
 CREATE TABLE course(
     course_code varchar(6),
-    name varchar(20),
+    name varchar(40),
     PRIMARY KEY (course_code)
 );
 
